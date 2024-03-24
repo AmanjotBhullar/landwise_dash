@@ -26,7 +26,7 @@ tab0, tab1, tab2, tab3 = st.tabs(["Property", "Land History", "Trends", "Agricul
 
 with tab0:
     st.title('Property')
-    st.write('This is a sample report for 8159 30 Sideroad, Centre Wellington, ON, N0B 2K0')
+    st.write('This is a mock report for 8159 30 Sideroad, Centre Wellington, ON, N0B 2K0')
     st.image(os.getcwd()+"/farm.PNG")
 
 

@@ -22,7 +22,12 @@ st.set_page_config(layout="centered")
 
 st.image(os.getcwd()+"/logo.PNG")
 # Create the top navigation bar with tabs
-tab1, tab2, tab3 = st.tabs(["Land History", "Trends", "Agriculture Tips"])
+tab0, tab1, tab2, tab3 = st.tabs(["Property", "Land History", "Trends", "Agriculture Tips"])
+
+with tab0:
+    st.title('Property')
+    st.write('This is a sample report for 8159 30 Sideroad, Centre Wellington, ON, N0B 2K0')
+    st.image(os.getcwd()+"/farm.PNG")
 
 
 # Add content to each tab

@@ -388,14 +388,36 @@ with tab2:
     st.subheader('Estimated Land Suitability Summary Table')
     st.write('This table summarizes the present and projected ten-year suitability of various crops for the specified property. It helps determine the optimal crops for cultivation on the farm and assesses their long-term viability.')
     summary_df = pd.read_csv('farm_data/trends/summary_table.csv')
+    numeric_cols = summary_df.select_dtypes(include=[np.number])
+    max_value = numeric_cols.max().max()
+    min_value = numeric_cols.min().min()
+
     def apply_heatmap(value):
         try:
-            value = int(value)  # Ensure the value is an integer
-            color = f'rgb(255, {255 - value}, {255 - value})'  # Generate color based on value
-        except ValueError:  # If value is not a number, keep the original formatting
+            numeric_value = pd.to_numeric(value, errors='coerce')
+            if numeric_value is not None and not np.isnan(numeric_value):
+                # Normalize the value to a 0-1 range
+                norm_value = (numeric_value - min_value) / (max_value - min_value)
+                # Use only pastel red and pastel blue shades
+                if norm_value < 0.5:
+                    # Pastel red: full red, and half of max for green and blue
+                    shade = 127 + int(128 * norm_value)  # Lighter shade for higher values
+                    color = f'rgb(255, {shade}, {shade})'
+                else:
+                    # Pastel blue: full blue, and half of max for red and green
+                    shade = 127 + int(128 * (1 - norm_value))  # Lighter shade for lower values
+                    color = f'rgb({shade}, {shade}, 255)'
+            else:
+                color = 'white'  # Use white for non-numeric values
+        except (ValueError, TypeError):
             color = 'white'
         return f'background-color: {color}'
-    styled_df = summary_df.style.applymap(apply_heatmap, subset=summary_df.columns[1:]).hide_index()
+
+    # Apply the heatmap
+    summary_df.insert(4, ' ', '') 
+    styled_df = summary_df.style.applymap(apply_heatmap, subset=numeric_cols.columns).hide_index()
+
+    # Assuming you are using Streamlit to display the dataframe
     st.write(styled_df.to_html(), unsafe_allow_html=True)
     
     st.write("The units for the summary table are bushels/acre.")

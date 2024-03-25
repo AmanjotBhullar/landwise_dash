@@ -327,17 +327,17 @@ with tab1:
             zindex=1,
         ).add_to(m2)
 
-
-        folium_static(m2)
-        
         mean_yield = np.nanmean(data2) + year - 2020
         mean_yield_formatted = "{:.0f}".format(mean_yield)
         st.write("For the " + str(year) + " growing season, the average yield for " + selected_crop_iy + " was " + mean_yield_formatted + " Bushels/Acre.")
+        folium_static(m2)
+        
+        
         
     except:
         m2 = folium.Map(location=[(bounds.top + bounds.bottom) / 2, (bounds.left + bounds.right) / 2], zoom_start=15)
-        folium_static(m2)
         st.write("<span style='color:red;'>The selected crop was not cultivated on this property during the " + str(year) + " growing season.</span>", unsafe_allow_html=True)
+        folium_static(m2)
 
 
         

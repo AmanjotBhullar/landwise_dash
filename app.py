@@ -37,7 +37,8 @@ with tab1:
     with col1:
         st.title("Land History")
     with col2:
-        year = st.number_input('Select Year for Land History', min_value=2014, max_value=2021, step=1)
+        year = st.slider('Select Year for Land History', min_value=2014, max_value=2021, step=1)
+
 
     st.subheader('Prior Inventory')
     

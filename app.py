@@ -510,41 +510,69 @@ with tab3:
     folium_static(m4)
     
     
-    st.subheader('Common Crop Roations')
-    st.write('The tables below illustrate the frequency with which the column-listed crop succeeds the row-listed crop at both county and national levels.')
-    
-    st.markdown('##### Crop Rotations at the County Level')
-    
-    county_rots = [['Pasture', 50.0, 1.17, 2.85, 3.6, 3.79, 8.21, 19.91, 0.65, 9.82],
-                    ['Wheat', 14.94, 5.3, 3.01, 14.47, 1.11, 21.2, 13.23, 9.5, 17.24],
-                    ['Barley', 9.08, 20.08, 6.95, 13.81, 13.03, 11.03, 10.4, 7.7, 7.92],
-                    ['Oats', 1.64, 3.58, 11.51, 19.29, 8.81, 15.99, 18.83, 18.77, 1.58],
-                    ['Canola', 8.1, 11.75, 11.89, 1.82, 14.87, 13.94, 13.14, 9.49, 15.0],
-                    ['Peas', 17.37, 13.21, 10.4, 8.8, 4.8, 10.94, 18.1, 2.13, 14.25],
-                    ['Corn', 8.66, 19.86, 6.22, 8.68, 13.46, 9.76, 17.14, 10.88, 5.34],
-                    ['Soy', 14.6, 2.24, 9.55, 25.94, 1.62, 10.38, 16.41, 3.88, 15.38]]
-    county_rots = pd.DataFrame(county_rots, columns=["", "Pasture", "Wheat", "Barley", "Oats", "Canola", "Peas", "Corn", "Soy", "Other"])
-    numeric_columns = county_rots.select_dtypes(include=[np.number]).columns
-    county_rots[numeric_columns] = county_rots[numeric_columns].applymap(lambda x: f'{x:.2f}%')
-    st.write(county_rots.to_html(index=False), unsafe_allow_html=True)
+    st.subheader('Common Crop Rotations')
+    st.write('Here are some common crop rotation patterns for '+selected_crop_iy+' in your county and across the country.')
     
     
-    st.markdown('##### Crop Rotations at the National Level')
+#     county_rots = [['Pasture', 50.0, 1.17, 2.85, 3.6, 3.79, 8.21, 19.91, 0.65, 9.82],
+#                     ['Wheat', 14.94, 5.3, 3.01, 14.47, 1.11, 21.2, 13.23, 9.5, 17.24],
+#                     ['Barley', 9.08, 20.08, 6.95, 13.81, 13.03, 11.03, 10.4, 7.7, 7.92],
+#                     ['Oats', 1.64, 3.58, 11.51, 19.29, 8.81, 15.99, 18.83, 18.77, 1.58],
+#                     ['Canola', 8.1, 11.75, 11.89, 1.82, 14.87, 13.94, 13.14, 9.49, 15.0],
+#                     ['Peas', 17.37, 13.21, 10.4, 8.8, 4.8, 10.94, 18.1, 2.13, 14.25],
+#                     ['Corn', 8.66, 19.86, 6.22, 8.68, 13.46, 9.76, 17.14, 10.88, 5.34],
+#                     ['Soy', 14.6, 2.24, 9.55, 25.94, 1.62, 10.38, 16.41, 3.88, 15.38]]
+#     county_rots = pd.DataFrame(county_rots, columns=["", "Pasture", "Wheat", "Barley", "Oats", "Canola", "Peas", "Corn", "Soy", "Other"])
+#     numeric_columns = county_rots.select_dtypes(include=[np.number]).columns
+#     county_rots[numeric_columns] = county_rots[numeric_columns].applymap(lambda x: f'{x:.2f}%')
+#     st.write(county_rots.to_html(index=False), unsafe_allow_html=True)
 
-    national_rots = [['Pasture', 20.51, 10.35, 5.09, 9.59, 4.84, 13.24, 18.89, 7.25, 10.24],
-                            ['Wheat', 18.24, 16.8, 15.99, 3.02, 5.84, 4.17, 13.7, 6.23, 16.01],
-                            ['Barley', 17.89, 13.75, 3.54, 10.26, 11.57, 12.66, 9.86, 10.32, 10.15],
-                            ['Oats', 4.72, 16.11, 8.98, 10.38, 10.87, 9.89, 12.63, 15.36, 11.06],
-                            ['Canola', 11.58, 13.9, 19.02, 4.4, 4.48, 3.41, 11.21, 9.3, 22.7],
-                            ['Peas', 16.17, 17.38, 8.11, 9.41, 4.35, 14.29, 7.86, 8.68, 13.75],
-                            ['Corn', 13.17, 13.88, 12.21, 8.35, 2.53, 16.73, 4.25, 11.94, 16.94],
-                            ['Soy', 13.26, 5.75, 20.06, 7.9, 11.25, 10.51, 13.52, 8.8, 8.95]]
-    national_rots = pd.DataFrame(national_rots, columns=["", "Pasture", "Wheat", "Barley", "Oats", "Canola", "Peas", "Corn", "Soy", "Other"])
-    numeric_columns = national_rots.select_dtypes(include=[np.number]).columns
-    national_rots[numeric_columns] = national_rots[numeric_columns].applymap(lambda x: f'{x:.2f}%')
-    
-    st.write(national_rots.to_html(index=False), unsafe_allow_html=True)
 
+    county_rots = {'Pasture': [('Pasture', 'Pasture'), ('Pasture', 'Grass'), ('Pasture', 'Barley', 'Grass')], 
+                   'Wheat': [('Wheat', 'Fallow'), ('Wheat', 'Legume'), ('Wheat', 'Canola', 'Barley'), ('Wheat', 'Soybeans', 'Corn')],
+                   'Barley': [('Barley', 'Fallow'), ('Barley', 'Peas')], 
+                   'Oats': [('Oats', 'Soybeans', 'Corn'), ('Oats', 'Canola', 'Wheat'), ('Oats', 'Pasture', 'Oats')], 
+                   'Canola': [('Canola', 'Fallow'), ('Canola', 'Legume'), ('Canola', 'Wheat', 'Barley')], 
+                   'Peas': [('Peas', 'Oats', 'Corn'), ('Peas', 'Pasture', 'Peas')], 
+                   'Corn':[('Corn', 'Fallow'), ('Corn', 'Soybeans'), ('Corn', 'Wheat', 'Clover')], 
+                   'Soy': [('Soy', 'Fallow'), ('Soy', 'Corn'), ('Soy', 'Wheat', 'Canola')]}
+    
+    markdown_str = "##### "+selected_crop_iy+" Rotations at the County Level:\n"
+    for rotation in county_rots[selected_crop_iy]:
+        markdown_str += f"- {' -> '.join(rotation)}\n"
+    # Display the bullet list in Streamlit
+    st.markdown(markdown_str)
+    
+    
+
+#     national_rots = [['Pasture', 20.51, 10.35, 5.09, 9.59, 4.84, 13.24, 18.89, 7.25, 10.24],
+#                             ['Wheat', 18.24, 16.8, 15.99, 3.02, 5.84, 4.17, 13.7, 6.23, 16.01],
+#                             ['Barley', 17.89, 13.75, 3.54, 10.26, 11.57, 12.66, 9.86, 10.32, 10.15],
+#                             ['Oats', 4.72, 16.11, 8.98, 10.38, 10.87, 9.89, 12.63, 15.36, 11.06],
+#                             ['Canola', 11.58, 13.9, 19.02, 4.4, 4.48, 3.41, 11.21, 9.3, 22.7],
+#                             ['Peas', 16.17, 17.38, 8.11, 9.41, 4.35, 14.29, 7.86, 8.68, 13.75],
+#                             ['Corn', 13.17, 13.88, 12.21, 8.35, 2.53, 16.73, 4.25, 11.94, 16.94],
+#                             ['Soy', 13.26, 5.75, 20.06, 7.9, 11.25, 10.51, 13.52, 8.8, 8.95]]
+#     national_rots = pd.DataFrame(national_rots, columns=["", "Pasture", "Wheat", "Barley", "Oats", "Canola", "Peas", "Corn", "Soy", "Other"])
+#     numeric_columns = national_rots.select_dtypes(include=[np.number]).columns
+#     national_rots[numeric_columns] = national_rots[numeric_columns].applymap(lambda x: f'{x:.2f}%')
+    
+#     st.write(national_rots.to_html(index=False), unsafe_allow_html=True)
+
+    national_rots = {'Pasture': [('Pasture', 'Legume'), ('Pasture', 'Wheat'), ('Pasture', 'Corn', 'Soy')],
+                    'Wheat': [('Wheat', 'Barley'), ('Wheat', 'Peas'), ('Wheat', 'Pasture', 'Wheat')],
+                    'Barley': [('Barley', 'Canola'), ('Barley', 'Wheat', 'Peas')],
+                    'Oats': [('Oats', 'Barley', 'Soy'), ('Oats', 'Peas', 'Corn'), ('Oats', 'Fallow')],
+                    'Canola': [('Canola', 'Oats'), ('Canola', 'Peas', 'Corn'), ('Canola', 'Pasture')],
+                    'Peas': [('Peas', 'Canola', 'Barley'), ('Peas', 'Wheat', 'Oats')],
+                    'Corn': [('Corn', 'Oats'), ('Corn', 'Barley'), ('Corn', 'Pasture')],
+                    'Soy': [('Soy', 'Wheat'), ('Soy', 'Barley'), ('Soy', 'Pasture')]}
+    
+    markdown_str = "##### "+selected_crop_iy+" Rotations at the National Level:\n"
+    for rotation in national_rots[selected_crop_iy]:
+        markdown_str += f"- {' -> '.join(rotation)}\n"
+    # Display the bullet list in Streamlit
+    st.markdown(markdown_str)
 
     
     

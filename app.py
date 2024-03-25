@@ -428,16 +428,16 @@ with tab2:
         
 
 with tab3:
-    st.title("Agriculture Tips")
     
     crops_iy = ["Pasture", "Wheat", "Barley", "Oats", "Canola", "Peas", "Corn", "Soy"]
 
     col1, col2 = st.columns(2)
     with col1:
-        st.subheader('Land-Use Planning')
+        st.title('Agriculture Tips')
     with col2:
-        selected_crop_iy = st.selectbox("Select a crop for land planning", crops_iy)
+        selected_crop_iy = st.selectbox("Select a crop for Tips", crops_iy)
         
+    st.subheader('Land-Use Planning')
     st.write('The land suitability maps serve as a guide for land-use planning.')
         
         

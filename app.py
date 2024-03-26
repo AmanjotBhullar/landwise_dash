@@ -511,7 +511,7 @@ with tab3:
     
     
     st.subheader('Common Crop Rotations')
-    st.write('Here are some common crop rotation patterns for '+selected_crop_iy+' in your county and across the country.')
+    st.write('Here are some common crop rotation patterns for '+selected_crop_iy+' in your county and across the nation.')
     
     
 #     county_rots = [['Pasture', 50.0, 1.17, 2.85, 3.6, 3.79, 8.21, 19.91, 0.65, 9.82],
@@ -560,7 +560,7 @@ with tab3:
 #     st.write(national_rots.to_html(index=False), unsafe_allow_html=True)
 
     national_rots = {'Pasture': [('Pasture', 'Legume'), ('Pasture', 'Wheat'), ('Pasture', 'Corn', 'Soy')],
-                    'Wheat': [('Wheat', 'Barley'), ('Wheat', 'Peas'), ('Wheat', 'Pasture', 'Wheat')],
+                    'Wheat': [('Wheat', 'Barley'), ('Wheat', 'Peas'), ('Wheat', 'Pasture')],
                     'Barley': [('Barley', 'Canola'), ('Barley', 'Wheat', 'Peas')],
                     'Oats': [('Oats', 'Barley', 'Soy'), ('Oats', 'Peas', 'Corn'), ('Oats', 'Fallow')],
                     'Canola': [('Canola', 'Oats'), ('Canola', 'Peas', 'Corn'), ('Canola', 'Pasture')],

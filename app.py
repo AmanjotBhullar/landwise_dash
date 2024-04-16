@@ -144,7 +144,7 @@ with tab1:
                     'Peatland': '#501b50',
                     'Grassland': '#cccc00',
                     'Agriculture': '#cc6600',
-                    'Pasture': '#ffcc33',
+                    'Flaxseed': '#ffcc33',
                     'Too Wet': '#7899f6',
                     'Fallow': '#ff9900',
                     'Cereals': '#660000',
@@ -168,7 +168,7 @@ with tab1:
                     'Borage': '#52ae77',
                     'Camelina': '#41bf7a',
                     'Canola': '#d6ff70',
-                    'Flaxseed': '#8c8cff',
+                    'Flaxseed2': '#8c8cff',
                     'Mustard': '#d6cc00',
                     'Safflower': '#ff7f00',
                     'Sunflower': '#315491',
@@ -275,7 +275,7 @@ with tab1:
             
             
             
-    crops_iy = ["Pasture", "Wheat", "Barley", "Oats", "Canola", "Peas", "Corn", "Soy"]
+    crops_iy = ["Flaxseed", "Wheat", "Barley", "Oats", "Canola", "Peas", "Corn", "Soy"]
 
     col1, col2 = st.columns(2)
     with col1:
@@ -298,7 +298,7 @@ with tab1:
             # Normalize the clipped data to the 0-255 range for display
             # Assuming you want to stretch the values between 60 and 100 across the full colormap range
             norm_data = (data_clipped - 60) / (100 - 60)  # This normalizes the data to 0-1
-            color_mapped_data = plt.cm.viridis(norm_data)  # Apply the 'viridis' colormap
+            color_mapped_data = plt.cm.plasma(norm_data)  # Apply the 'viridis' colormap
 
         # Create a folium map centered on the raster
         m2 = folium.Map(location=[(bounds2.top + bounds2.bottom) / 2, (bounds2.left + bounds2.right) / 2], zoom_start=15)
@@ -308,16 +308,16 @@ with tab1:
 
         # Create a colormap object
         num_colors = 256
-        viridis_cm = plt.cm.get_cmap('viridis', num_colors)
-        viridis_colors = [viridis_cm(i) for i in range(viridis_cm.N)]
+        plasma_cm = plt.cm.get_cmap('plasma', num_colors)
+        plasma_colors = [plasma_cm(i) for i in range(plasma_cm.N)]
 
         # Convert RGBA colors to hexadecimal
-        viridis_hex = [matplotlib.colors.rgb2hex(color) for color in viridis_colors]
+        plasma_hex = [matplotlib.colors.rgb2hex(color) for color in plasma_colors]
 
-        # Create a LinearColormap in branca using the hexadecimal viridis colors
-        viridis_linear = LinearColormap(viridis_hex, vmin=60, vmax=100)
-        viridis_linear.caption = 'Yield (Bushels/Acre)'
-        viridis_linear.add_to(m2)
+        # Create a LinearColormap in branca using the hexadecimal plasma colors
+        plasma_linear = LinearColormap(plasma_hex, vmin=60, vmax=100)
+        plasma_linear.caption = 'Yield (Bushels/Acre)'
+        plasma_linear.add_to(m2)
 
         # Add the color-mapped raster as an overlay on the map
         ImageOverlay(
@@ -326,6 +326,7 @@ with tab1:
             origin='upper',
             zindex=1,
         ).add_to(m2)
+
 
         mean_yield = np.nanmean(data2) + year - 2020
         mean_yield_formatted = "{:.0f}".format(mean_yield)
@@ -338,6 +339,7 @@ with tab1:
         m2 = folium.Map(location=[(bounds.top + bounds.bottom) / 2, (bounds.left + bounds.right) / 2], zoom_start=15)
         st.write("<span style='color:red;'>The selected crop was not cultivated on this property during the " + str(year) + " growing season.</span>", unsafe_allow_html=True)
         folium_static(m2)
+        
 
 
         
@@ -347,7 +349,7 @@ with tab1:
 
 with tab2:
         
-    crops_t = ["Pasture", "Wheat", "Barley", "Oats", "Canola", "Peas", "Corn", "Soy"]
+    crops_t = ["Flaxseed", "Wheat", "Barley", "Oats", "Canola", "Peas", "Corn", "Soy"]
 
     col1, col2 = st.columns(2)
     with col1:
@@ -365,7 +367,7 @@ with tab2:
     
     # Filter the DataFrame to include only the rows for the levels you want to plot
     # This step is optional if you want to plot all levels
-    df_filtered = df[df['levels'].isin(['Property', 'County', 'National'])]
+    df_filtered = df[df['levels'].isin(['Property', 'Neighbourhood', 'National'])]
 
     # Create an interactive line chart using Plotly
     # Here, 'Year' is assumed to be your x-axis and 'Yield' your y-axis
@@ -387,40 +389,50 @@ with tab2:
     
     st.subheader('Estimated Land Suitability Summary Table')
     st.write('This table summarizes the present and projected ten-year suitability of various crops for the specified property. It helps determine the optimal crops for cultivation on the farm and assesses their long-term viability.')
+    
     summary_df = pd.read_csv('farm_data/trends/summary_table.csv')
-    numeric_cols = summary_df.select_dtypes(include=[np.number])
-    max_value = numeric_cols.max().max()
-    min_value = numeric_cols.min().min()
 
-    def apply_heatmap(value):
-        try:
-            numeric_value = pd.to_numeric(value, errors='coerce')
-            if numeric_value is not None and not np.isnan(numeric_value):
-                # Normalize the value to a 0-1 range
-                norm_value = (numeric_value - min_value) / (max_value - min_value)
-                # Use only pastel red and pastel blue shades
-                if norm_value < 0.5:
-                    # Pastel red: full red, and half of max for green and blue
-                    shade = 127 + int(128 * norm_value)  # Lighter shade for higher values
-                    color = f'rgb(255, {shade}, {shade})'
-                else:
-                    # Pastel blue: full blue, and half of max for red and green
-                    shade = 127 + int(128 * (1 - norm_value))  # Lighter shade for lower values
-                    color = f'rgb({shade}, {shade}, 255)'
-            else:
-                color = 'white'  # Use white for non-numeric values
-        except (ValueError, TypeError):
-            color = 'white'
-        return f'background-color: {color}'
+    summary_df.insert(1, ' ', '')
 
-    # Apply the heatmap
-    summary_df.insert(4, ' ', '') 
-    styled_df = summary_df.style.applymap(apply_heatmap, subset=numeric_cols.columns).hide_index()
+    # Insert another blank column for spacing after the 4th column (now 5th due to the first insertion, 0-based index)
+    summary_df.insert(5, '  ', '')
+
+    def apply_highlight_color(row):
+        # Define colors in proper CSS format
+        light_green = 'background-color: rgb(204, 255, 204);'
+        light_red = 'background-color: rgb(255, 230, 230);'
+
+        # Setup highlighting conditions for column 2 and 6
+        green_conditions_col2 = {0, 1, 5, 6}  # Zero-based indices for rows
+        green_conditions_col6 = {0, 1, 2, 5}  # Zero-based indices for rows
+
+        # Initialize an array with default (empty) styles for each cell
+        styles = [''] * len(row)
+
+        # Apply colors based on conditions
+        # Adjust column indices for the added blank columns
+        if row.name in green_conditions_col2:
+            styles[2] = light_green  # Adjusted Column 2 index to 2 (after inserting a blank column)
+        else:
+            styles[2] = light_red  # Adjusted Column 2 index to 2
+
+        if row.name in green_conditions_col6:
+            styles[6] = light_green  # Adjusted Column 6 index to 6 (after inserting two blank columns)
+        else:
+            styles[6] = light_red  # Adjusted Column 6 index to 6
+
+        return styles
+
+    # Apply the color style function selectively on adjusted columns 2 and 6
+    styled_df = summary_df.style.apply(apply_highlight_color, axis=1)
+
+    # Hide the index
+    styled_df = styled_df.hide_index()
 
     # Assuming you are using Streamlit to display the dataframe
     st.write(styled_df.to_html(), unsafe_allow_html=True)
     
-    st.write("The units for the summary table are bushels/acre.")
+    st.write("The units are bushels/acre.")
 
 
         
@@ -429,7 +441,7 @@ with tab2:
 
 with tab3:
     
-    crops_iy = ["Pasture", "Wheat", "Barley", "Oats", "Canola", "Peas", "Corn", "Soy"]
+    crops_iy = ["Flaxseed", "Wheat", "Barley", "Oats", "Canola", "Peas", "Corn", "Soy"]
 
     col1, col2 = st.columns(2)
     with col1:
@@ -448,27 +460,28 @@ with tab3:
 
 
     norm_data = (raster_file3 - np.min(raster_file3)) / (np.max(raster_file3) - np.min(raster_file3))  # This normalizes the data to 0-1
-    color_mapped_data = plt.cm.viridis(norm_data)  # Apply the 'viridis' colormap
-    
-     # Create an alpha channel, setting zero values (or near zero) to transparent
+    # Apply the 'plasma' colormap to normalized data
+    color_mapped_data = plt.cm.plasma(norm_data)
+
+    # Create an alpha channel, setting zero values (or near zero) to transparent
     alpha = np.where(raster_file3 > 0, 1, 0).astype(float)  # Change 0 to your specific threshold if needed
 
-    # Combine the color mapped data with the alpha channel
+    # Combine the color-mapped data with the alpha channel
     image_data = np.dstack((color_mapped_data[:, :, :3], alpha))
 
     # Create a folium map centered on the raster
     m4 = folium.Map(location=[(bounds.top + bounds.bottom) / 2, (bounds.left + bounds.right) / 2], zoom_start=15)
 
-    # Create a colormap object
+    # Create a colormap object for 'plasma'
     num_colors = 256
-    viridis_cm = plt.cm.get_cmap('viridis', num_colors)
-    viridis_colors = [viridis_cm(i) for i in range(viridis_cm.N)]
+    plasma_cm = plt.cm.get_cmap('plasma', num_colors)
+    plasma_colors = [plasma_cm(i) for i in range(plasma_cm.N)]
 
     # Convert RGBA colors to hexadecimal
-    viridis_hex = [matplotlib.colors.rgb2hex(color) for color in viridis_colors]
+    plasma_hex = [matplotlib.colors.rgb2hex(color) for color in plasma_colors]
 
-    # Create a LinearColormap in branca using the hexadecimal viridis colors
-    if selected_crop_iy == "Pasture":
+    # Determine vmin and vmax based on selected crop
+    if selected_crop_iy == "Flaxseed":
         vmin = 76-20
         vmax = 76+20
     if selected_crop_iy == "Wheat":
@@ -492,11 +505,11 @@ with tab3:
     if selected_crop_iy == "Soy":
         vmin = 83-20
         vmax = 83+20
- 
-    
-    viridis_linear = LinearColormap(viridis_hex, vmin=vmin, vmax=vmax)
-    viridis_linear.caption = 'Yield (Bushels/Acre)'
-    viridis_linear.add_to(m4)
+
+    # Create a LinearColormap in branca using the hexadecimal plasma colors
+    plasma_linear = LinearColormap(plasma_hex, vmin=vmin, vmax=vmax)
+    plasma_linear.caption = 'Yield (Bushels/Acre)'
+    plasma_linear.add_to(m4)
 
     # Add the color-mapped raster as an overlay on the map
     ImageOverlay(
@@ -507,14 +520,15 @@ with tab3:
     ).add_to(m4)
 
 
+
     folium_static(m4)
     
     
     st.subheader('Common Crop Rotations')
-    st.write('Here are some common crop rotation patterns for '+selected_crop_iy+' in your county and across the nation.')
+    st.write('Here are some common crop rotation patterns for '+selected_crop_iy+' in your county and across the country.')
     
     
-#     county_rots = [['Pasture', 50.0, 1.17, 2.85, 3.6, 3.79, 8.21, 19.91, 0.65, 9.82],
+#     county_rots = [['Flaxseed', 50.0, 1.17, 2.85, 3.6, 3.79, 8.21, 19.91, 0.65, 9.82],
 #                     ['Wheat', 14.94, 5.3, 3.01, 14.47, 1.11, 21.2, 13.23, 9.5, 17.24],
 #                     ['Barley', 9.08, 20.08, 6.95, 13.81, 13.03, 11.03, 10.4, 7.7, 7.92],
 #                     ['Oats', 1.64, 3.58, 11.51, 19.29, 8.81, 15.99, 18.83, 18.77, 1.58],
@@ -522,22 +536,22 @@ with tab3:
 #                     ['Peas', 17.37, 13.21, 10.4, 8.8, 4.8, 10.94, 18.1, 2.13, 14.25],
 #                     ['Corn', 8.66, 19.86, 6.22, 8.68, 13.46, 9.76, 17.14, 10.88, 5.34],
 #                     ['Soy', 14.6, 2.24, 9.55, 25.94, 1.62, 10.38, 16.41, 3.88, 15.38]]
-#     county_rots = pd.DataFrame(county_rots, columns=["", "Pasture", "Wheat", "Barley", "Oats", "Canola", "Peas", "Corn", "Soy", "Other"])
+#     county_rots = pd.DataFrame(county_rots, columns=["", "Flaxseed", "Wheat", "Barley", "Oats", "Canola", "Peas", "Corn", "Soy", "Other"])
 #     numeric_columns = county_rots.select_dtypes(include=[np.number]).columns
 #     county_rots[numeric_columns] = county_rots[numeric_columns].applymap(lambda x: f'{x:.2f}%')
 #     st.write(county_rots.to_html(index=False), unsafe_allow_html=True)
 
 
-    county_rots = {'Pasture': [('Pasture', 'Pasture'), ('Pasture', 'Grass'), ('Pasture', 'Barley', 'Grass')], 
+    county_rots = {'Flaxseed': [('Flaxseed', 'Flaxseed'), ('Flaxseed', 'Grass'), ('Flaxseed', 'Barley', 'Grass')], 
                    'Wheat': [('Wheat', 'Fallow'), ('Wheat', 'Legume'), ('Wheat', 'Canola', 'Barley'), ('Wheat', 'Soybeans', 'Corn')],
                    'Barley': [('Barley', 'Fallow'), ('Barley', 'Peas')], 
-                   'Oats': [('Oats', 'Soybeans', 'Corn'), ('Oats', 'Canola', 'Wheat'), ('Oats', 'Pasture', 'Oats')], 
+                   'Oats': [('Oats', 'Soybeans', 'Corn'), ('Oats', 'Canola', 'Wheat'), ('Oats', 'Flaxseed', 'Oats')], 
                    'Canola': [('Canola', 'Fallow'), ('Canola', 'Legume'), ('Canola', 'Wheat', 'Barley')], 
-                   'Peas': [('Peas', 'Oats', 'Corn'), ('Peas', 'Pasture', 'Peas')], 
+                   'Peas': [('Peas', 'Oats', 'Corn'), ('Peas', 'Flaxseed', 'Peas')], 
                    'Corn':[('Corn', 'Fallow'), ('Corn', 'Soybeans'), ('Corn', 'Wheat', 'Clover')], 
                    'Soy': [('Soy', 'Fallow'), ('Soy', 'Corn'), ('Soy', 'Wheat', 'Canola')]}
     
-    markdown_str = "##### "+selected_crop_iy+" Rotations at the County Level:\n"
+    markdown_str = "##### "+selected_crop_iy+" Rotations at the Neighbourhood Level:\n"
     for rotation in county_rots[selected_crop_iy]:
         markdown_str += f"- {' -> '.join(rotation)}\n"
     # Display the bullet list in Streamlit
@@ -545,7 +559,7 @@ with tab3:
     
     
 
-#     national_rots = [['Pasture', 20.51, 10.35, 5.09, 9.59, 4.84, 13.24, 18.89, 7.25, 10.24],
+#     national_rots = [['Flaxseed', 20.51, 10.35, 5.09, 9.59, 4.84, 13.24, 18.89, 7.25, 10.24],
 #                             ['Wheat', 18.24, 16.8, 15.99, 3.02, 5.84, 4.17, 13.7, 6.23, 16.01],
 #                             ['Barley', 17.89, 13.75, 3.54, 10.26, 11.57, 12.66, 9.86, 10.32, 10.15],
 #                             ['Oats', 4.72, 16.11, 8.98, 10.38, 10.87, 9.89, 12.63, 15.36, 11.06],
@@ -553,26 +567,28 @@ with tab3:
 #                             ['Peas', 16.17, 17.38, 8.11, 9.41, 4.35, 14.29, 7.86, 8.68, 13.75],
 #                             ['Corn', 13.17, 13.88, 12.21, 8.35, 2.53, 16.73, 4.25, 11.94, 16.94],
 #                             ['Soy', 13.26, 5.75, 20.06, 7.9, 11.25, 10.51, 13.52, 8.8, 8.95]]
-#     national_rots = pd.DataFrame(national_rots, columns=["", "Pasture", "Wheat", "Barley", "Oats", "Canola", "Peas", "Corn", "Soy", "Other"])
+#     national_rots = pd.DataFrame(national_rots, columns=["", "Flaxseed", "Wheat", "Barley", "Oats", "Canola", "Peas", "Corn", "Soy", "Other"])
 #     numeric_columns = national_rots.select_dtypes(include=[np.number]).columns
 #     national_rots[numeric_columns] = national_rots[numeric_columns].applymap(lambda x: f'{x:.2f}%')
     
 #     st.write(national_rots.to_html(index=False), unsafe_allow_html=True)
 
-    national_rots = {'Pasture': [('Pasture', 'Legume'), ('Pasture', 'Wheat'), ('Pasture', 'Corn', 'Soy')],
-                    'Wheat': [('Wheat', 'Barley'), ('Wheat', 'Peas'), ('Wheat', 'Pasture')],
+    national_rots = {'Flaxseed': [('Flaxseed', 'Legume'), ('Flaxseed', 'Wheat'), ('Flaxseed', 'Corn', 'Soy')],
+                    'Wheat': [('Wheat', 'Barley'), ('Wheat', 'Peas'), ('Wheat', 'Flaxseed', 'Wheat')],
                     'Barley': [('Barley', 'Canola'), ('Barley', 'Wheat', 'Peas')],
                     'Oats': [('Oats', 'Barley', 'Soy'), ('Oats', 'Peas', 'Corn'), ('Oats', 'Fallow')],
-                    'Canola': [('Canola', 'Oats'), ('Canola', 'Peas', 'Corn'), ('Canola', 'Pasture')],
+                    'Canola': [('Canola', 'Oats'), ('Canola', 'Peas', 'Corn'), ('Canola', 'Flaxseed')],
                     'Peas': [('Peas', 'Canola', 'Barley'), ('Peas', 'Wheat', 'Oats')],
-                    'Corn': [('Corn', 'Oats'), ('Corn', 'Barley'), ('Corn', 'Pasture')],
-                    'Soy': [('Soy', 'Wheat'), ('Soy', 'Barley'), ('Soy', 'Pasture')]}
+                    'Corn': [('Corn', 'Oats'), ('Corn', 'Barley'), ('Corn', 'Flaxseed')],
+                    'Soy': [('Soy', 'Wheat'), ('Soy', 'Barley'), ('Soy', 'Flaxseed')]}
     
     markdown_str = "##### "+selected_crop_iy+" Rotations at the National Level:\n"
     for rotation in national_rots[selected_crop_iy]:
         markdown_str += f"- {' -> '.join(rotation)}\n"
     # Display the bullet list in Streamlit
     st.markdown(markdown_str)
+
+
 
     
     
